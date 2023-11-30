@@ -1,3 +1,6 @@
+# .gitignore for Hexo
+
+# Ignored files when deploying to GitHub Pages
 .DS_Store
 Thumbs.db
 db.json
@@ -5,4 +8,20 @@ db.json
 node_modules/
 public/
 .deploy*/
-_multiconfig.yml
+.deploy_git/
+*.sublime*
+.svn/
+
+# Ignored directories when deploying to GitHub Pages
+backup/
+drafts/
+src/
+themes/
+.backup*/
+.db*/ 
+*.suo 
+*.ntvs*
+*.njsproj 
+*.sln
+*.swp
+*.swo
