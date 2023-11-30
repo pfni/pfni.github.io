@@ -104,5 +104,5 @@ theme: fluid
 
 deploy:
   type: 'git'
-  repo: 'https://github.com/pfni/pfni.github.io.git'
+  repo: 'git@github.com:pfni/pfni.github.io.git'
   branch: 'master'
