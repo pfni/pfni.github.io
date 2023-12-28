@@ -3,11 +3,11 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: XiaoDengZi
+title: Hambur
 subtitle: 'xdz'
 description: ''
-keywords:
-author: xiaodengzi
+keywords: 
+author: Hambur
 language: zh-CN
 timezone: ''
 
@@ -97,7 +97,7 @@ ignore:
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: fluid
+theme: solitude
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
