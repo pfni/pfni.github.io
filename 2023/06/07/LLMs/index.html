@@ -12,7 +12,7 @@
   <meta name="author" content="Hambur">
 
 
-  <meta name="subtitle" content="xdz">
+  <meta name="subtitle" content="I am not afraid of tomorrow for I have seen yesterday and love today.">
 
 
 
@@ -163,9 +163,13 @@
         
           <a class="hidden sm:flex" href="/archives">Posts</a>
         
+          <a class="hidden sm:flex" href="/category">Categories</a>
+        
+          <a class="hidden sm:flex" href="/tag">Tags</a>
+        
         
           
-            <a class="w-5 h-5 hidden sm:flex" title="Github" target="_blank" rel="noopener" href="https://github.com/xbmlz">
+            <a class="w-5 h-5 hidden sm:flex" title="Github" target="_blank" rel="noopener" href="https://github.com/pfni">
               <iconify-icon width="20" icon="ri:github-line"></iconify-icon>
             </a>
           
@@ -194,6 +198,14 @@
       
         <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
           <a href="/archives" class="flex h-12 sm:h-auto items-center">Posts</a>
+        </li>
+      
+        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
+          <a href="/category" class="flex h-12 sm:h-auto items-center">Categories</a>
+        </li>
+      
+        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
+          <a href="/tag" class="flex h-12 sm:h-auto items-center">Tags</a>
         </li>
       
     </ul>
@@ -226,7 +238,7 @@
         <section class="flex items-center gap-3 text-sm">
           <span class="flex items-center gap-1">
             <iconify-icon width="18" icon="carbon-calendar" ></iconify-icon>
-            <time>2024-04-11</time>
+            <time>2024-06-18</time>
           </span>
           <span class="text-gray-400">·</span>
           <span class="flex items-center gap-1">
@@ -239,6 +251,12 @@
             <span>7.2k words</span>
           </span>
           
+            <span class="text-gray-400">·</span>
+            <span class="flex items-center gap-1">
+              <iconify-icon width="16" icon="icon-park-outline:box" class="mr-2"></iconify-icon>
+              <a class="article-category-link" href="/categories/Diary/">Diary</a>
+            </span>
+          
         </section>
       </div>
     </div>
@@ -248,7 +266,7 @@
     <p>正在完善中</p>
 <br>
 
-<h1 id="1-大语言模型基础"><a href="#1-大语言模型基础" class="headerlink" title="1. 大语言模型基础"></a>1. 大语言模型基础</h1><p>包括了数学基础知识、python基础、神经网络和NLP自然语言四个方面的学习。</p>
+<h1 id="1-大语言模型基础"><a href="#1-大语言模型基础" class="headerlink" title="1. 大语言模型基础"></a>1. 大语言模型基础</h1><p>包括了<font face="楷体" size="6" color="#00dd00">数学基础知识、python基础、神经网络和NLP自然语言</font>四个方面的学习。</p>
 <h2 id="1-1-机器学习的数学"><a href="#1-1-机器学习的数学" class="headerlink" title="1.1 机器学习的数学"></a>1.1 机器学习的数学</h2><p>线性代数：理解算法的关键。主要概念包括向量、矩阵、行列式、特征值和特征向量、向量空间和线性变换。</p>
 <p>微积分：许多机器学习算法涉及连续函数的优化，这需要理解导数、积分、极限和级数。多变量微积分和梯度的概念也很重要。</p>
 <p>概率与统计：对于理解模型如何从数据中学习也同样重要。主要概念包括概率论、随机变量、概率分布、期望、方差、协方差、相关性、假设检验、置信区间、最大似然估计和贝叶斯推断。</p>
@@ -459,14 +477,24 @@
   <!-- tag -->
   <div class="mt-12 pt-6 border-t border-gray-200">
     
+      
+        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
+          <a href="/tags/PS3/">PS3</a>
+        </span>
+      
+        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 m-1 text-sm rounded-md transition-colors hover:bg-gray-200">
+          <a href="/tags/Games/">Games</a>
+        </span>
+      
+    
   </div>
   <!-- prev and next -->
   <div class="flex justify-between mt-12 pt-6 border-t border-gray-200">
     <div>
       
-        <a href="/2023/12/29/hello-world/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
+        <a href="/2023/06/08/%E9%83%A8%E7%BD%B2%E6%AD%A5%E9%AA%A4/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
           <iconify-icon width="20" icon="ri:arrow-left-s-line" data-inline="false"></iconify-icon>
-          Hello World
+          Hexo+fluid部署
         </a>
       
     </div>
@@ -523,7 +551,7 @@
 <script>
   $(document).ready(() => {
     const maraidConfig = {
-      theme: "default",
+      theme: "neutral",
       logLevel: 3,
       flowchart: { curve: "linear" },
       gantt: { axisFormat: "%m/%d/%Y" },
