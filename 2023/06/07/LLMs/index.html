@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+
+
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <meta name="author" content="Hambur">
+
+
+  <meta name="subtitle" content="xdz">
+
+
+
+
+<title>LLMs学习 | Hambur</title>
+
+
+
+<link rel="icon" href="/favicon.png">
+
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/nprogress/nprogress.css">
+
+
+
+<script src="/lib/jquery.min.js"></script>
+
+
+<script src="/lib/iconify-icon.min.js"></script>
+
+
+<script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+  };
+</script>
+
+
+<script src="/lib/nprogress/nprogress.js"></script>
+
+<script>
+  $(document).ready(() => {
+    NProgress.configure({
+      showSpinner: false,
+    });
+    NProgress.start();
+    $("#nprogress .bar").css({
+      background: "#de7441",
+    });
+    $("#nprogress .peg").css({
+      "box-shadow": "0 0 2px #de7441, 0 0 4px #de7441",
+    });
+    $("#nprogress .spinner-icon").css({
+      "border-top-color": "#de7441",
+      "border-left-color": "#de7441",
+    });
+    setTimeout(function () {
+      NProgress.done();
+      $(".fade").removeClass("out");
+    }, 800);
+  });
+</script>
+
+<script>
+  (function () {
+    const prefersDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const setting = localStorage.getItem("hexo-color-scheme") || "auto";
+    if (setting === "dark" || (prefersDark && setting !== "light"))
+      document.documentElement.classList.toggle("dark", true);
+    let isDark = document.documentElement.classList.contains("dark");
+  })();
+
+  $(document).ready(function () {
+    // init icon
+    const prefersDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const isDark = document.documentElement.classList.contains("dark");
+    $("#theme-icon").attr("icon", isDark ? "ri:moon-line" : "ri:sun-line");
+
+    function toggleGiscusTheme() {
+      const isDark = document.documentElement.classList.contains("dark");
+      const giscusFrame = document.querySelector("iframe.giscus-frame");
+      if (giscusFrame) {
+        giscusFrame.contentWindow.postMessage(
+          {
+            giscus: {
+              setConfig: {
+                theme: isDark ? "dark" : "light",
+              },
+            },
+          },
+          "https://giscus.app"
+        );
+      }
+    }
+
+
+    // toggle dark mode
+    function toggleDark() {
+      let isDark = document.documentElement.classList.contains("dark");
+      const setting = localStorage.getItem("hexo-color-scheme") || "auto";
+      isDark = !isDark;
+      document.documentElement.classList.toggle("dark", isDark);
+      $("#theme-icon").attr("icon", isDark ? "ri:moon-line" : "ri:sun-line");
+      if (prefersDark === isDark) {
+        localStorage.setItem("hexo-color-scheme", "auto");
+      } else {
+        localStorage.setItem("hexo-color-scheme", isDark ? "dark" : "light");
+      }
+      toggleGiscusTheme();
+    }
+    $("#toggle-dark").click(toggleDark);
+
+    // listen dark mode change
+    window
+      .matchMedia("(prefers-color-scheme: dark)")
+      .addEventListener("change", (e) => {
+        const setting = localStorage.getItem("hexo-color-scheme") || "auto";
+        if (setting === "auto") {
+          document.documentElement.classList.toggle("dark", e.matches);
+          $("#theme-icon").attr(
+            "icon",
+            e.matches ? "ri:moon-line" : "ri:sun-line"
+          );
+          toggleGiscusTheme();
+        }
+      });
+  });
+</script>
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+<body class="font-sans bg-white dark:bg-zinc-900 text-gray-700 dark:text-gray-200 relative">
+  <header class="fixed w-full px-5 py-1 z-10 backdrop-blur-xl backdrop-saturate-150 border-b border-black/5">
+  <div class="max-auto">
+    <nav class="flex items-center text-base">
+      <a href="/" class="group">
+        <h2 class="font-medium tracking-tighterp text-l p-2">
+          <img class="w-5 mr-2 inline-block transition-transform group-hover:rotate-[30deg]" id="logo" src="/images/logo.svg" alt="Hambur" />
+          Hambur
+        </h2>
+      </a>
+      <div id="header-title" class="opacity-0 md:ml-2 md:mt-[0.1rem] text-xs font-medium whitespace-nowrap overflow-hidden overflow-ellipsis">
+        LLMs学习
+      </div>
+      <div class="flex-1"></div>
+      <div class="flex items-center gap-3">
+        
+          <a class="hidden sm:flex" href="/archives">Posts</a>
+        
+        
+          
+            <a class="w-5 h-5 hidden sm:flex" title="Github" target="_blank" rel="noopener" href="https://github.com/xbmlz">
+              <iconify-icon width="20" icon="ri:github-line"></iconify-icon>
+            </a>
+          
+        
+        <a class="w-5 h-5 hidden sm:flex" title="Github" href="rss2.xml">
+          <iconify-icon width="20" icon="ri:rss-line"></iconify-icon>
+        </a>
+        <a class="w-5 h-5" title="toggle theme" id="toggle-dark">
+          <iconify-icon width="20" icon="" id="theme-icon"></iconify-icon>
+        </a>
+      </div>
+      <div class="flex items-center justify-center gap-3 ml-3 sm:hidden">
+        <span class="w-5 h-5" aria-hidden="true" role="img" id="open-menu">
+          <iconify-icon width="20" icon="carbon:menu" ></iconify-icon>
+        </span>
+        <span class="w-5 h-5 hidden" aria-hidden="true" role="img" id="close-menu">
+          <iconify-icon  width="20" icon="carbon:close" ></iconify-icon>
+        </span>
+      </div>
+    </nav>
+  </div>
+</header>
+<div id="menu-panel" class="h-0 overflow-hidden sm:hidden fixed left-0 right-0 top-12 bottom-0 z-10">
+  <div id="menu-content" class="relative z-20 bg-white/80 px-6 sm:px-8 py-2 backdrop-blur-xl -translate-y-full transition-transform duration-300">
+    <ul class="nav flex flex-col sm:flex-row text-sm font-medium">
+      
+        <li class="nav-portfolio sm:mx-2 border-b sm:border-0 border-black/5 last:border-0 hover:text-main">
+          <a href="/archives" class="flex h-12 sm:h-auto items-center">Posts</a>
+        </li>
+      
+    </ul>
+  </div>
+  <div class="mask bg-black/20 absolute inset-0"></div>
+</div>
+
+  <main class="pt-14">
+    <!-- css -->
+
+<link rel="stylesheet" href="/lib/fancybox/fancybox.min.css">
+
+
+<link rel="stylesheet" href="/lib/tocbot/tocbot.min.css">
+
+<!-- toc -->
+
+  <!-- tocbot -->
+<nav class="post-toc toc text-sm w-48 relative top-32 right-0 opacity-70 hidden lg:block" style="position: fixed !important;"></nav>
+
+
+<section class="px-6 max-w-prose mx-auto md:px-0">
+  <!-- header -->
+  <header class="overflow-hidden pt-6 pb-6 md:pt-12">
+    <div class="pt-4 md:pt-6">
+      <h1 id="article-title" class="text-[2rem] font-bold leading-snug mb-4 md:mb-6 md:text-[2.6rem]">
+        LLMs学习
+      </h1>
+      <div>
+        <section class="flex items-center gap-3 text-sm">
+          <span class="flex items-center gap-1">
+            <iconify-icon width="18" icon="carbon-calendar" ></iconify-icon>
+            <time>2024-04-11</time>
+          </span>
+          <span class="text-gray-400">·</span>
+          <span class="flex items-center gap-1">
+            <iconify-icon width="18" icon="ic:round-access-alarm" ></iconify-icon>
+            <span>26 min</span>
+          </span>
+          <span class="text-gray-400">·</span>
+          <span class="flex items-center gap-1">
+            <iconify-icon width="18" icon="icon-park-outline:font-search" ></iconify-icon>
+            <span>7.2k words</span>
+          </span>
+          
+        </section>
+      </div>
+    </div>
+  </header>
+  <!-- content -->
+  <article class="post-content prose m-auto slide-enter-content dark:prose-invert">
+    <p>正在完善中</p>
+<br>
+
+<h1 id="1-大语言模型基础"><a href="#1-大语言模型基础" class="headerlink" title="1. 大语言模型基础"></a>1. 大语言模型基础</h1><p>包括了数学基础知识、python基础、神经网络和NLP自然语言四个方面的学习。</p>
+<h2 id="1-1-机器学习的数学"><a href="#1-1-机器学习的数学" class="headerlink" title="1.1 机器学习的数学"></a>1.1 机器学习的数学</h2><p>线性代数：理解算法的关键。主要概念包括向量、矩阵、行列式、特征值和特征向量、向量空间和线性变换。</p>
+<p>微积分：许多机器学习算法涉及连续函数的优化，这需要理解导数、积分、极限和级数。多变量微积分和梯度的概念也很重要。</p>
+<p>概率与统计：对于理解模型如何从数据中学习也同样重要。主要概念包括概率论、随机变量、概率分布、期望、方差、协方差、相关性、假设检验、置信区间、最大似然估计和贝叶斯推断。</p>
+<p><strong>📚 资源：</strong>（可能需要科学上网，国内可访问版本在这里也给出一些链接）</p>
+<p>3Blue1Brown - 线性代数的本质：教学视频，以生动直观的方式介绍了线性代数的相关概念。（B站一个已经翻译配音的版本）</p>
+<p>StatQuest with Josh Starmer - 统计基础：为许多统计概念提供简单清晰的解释。（只找到B站生肉）</p>
+<p>AP Statistics Intuition by Ms Aerin：博文，比较详细和基础，它是Medium文章，需要科学上网才能访问。</p>
+<p>沉浸式线性代数：线性代数的另一种视觉解释。</p>
+<p>Khan Academy - 线性代数：可汗学院的线性代数课程，适合初学者（B站有中文字幕版）</p>
+<p>Khan Academy - 微积分：涵盖了所有的基础的微积分知识。（B站）</p>
+<p>Khan Academy - 概率与统计：以易于理解的方式讲授。（B站）</p>
+<h2 id="1-2-机器学习的Python"><a href="#1-2-机器学习的Python" class="headerlink" title="1.2 机器学习的Python"></a>1.2 机器学习的Python</h2><p>Python一直是机器学习和深度学习的首选语言，这得益于其可读性、一致性和鲁棒的数据科学库生态系统。</p>
+<p>Python基础：理解基本语法、数据类型、错误处理和面向对象编程。</p>
+<p>数据科学库：包括熟悉NumPy进行数值操作，Pandas进行数据操作和分析，Matplotlib和Seaborn进行数据可视化。</p>
+<p>数据预处理：涉及特征缩放和规范化、处理缺失数据、异常值检测、分类数据编码以及将数据分割成训练、验证和测试集。</p>
+<p>机器学习库：熟练掌握Scikit-learn，这是一个提供了许多监督和非监督学习算法的库。重点需要了解如何实现线性回归、逻辑回归、决策树、随机森林、最近邻(K-NN)和K均值聚类等算法。</p>
+<p><strong>📚 资源：</strong></p>
+<p>Real Python：python学习网站</p>
+<p>freeCodeCamp - 学习Python：Python中所有核心概念的详细介绍视频。该官网的可以访问，但是视频资源需要通过科学上网观看。</p>
+<p>Python数据科学手册：学习pandas、NumPy、Matplotlib和Seaborn的免费书籍。</p>
+<p>freeCodeCamp - 机器学习入门：机器学习算法学习。</p>
+<p>Udacity - 机器学习入门：免费课程，涵盖了PCA和其他几个机器学习概念。</p>
+<h2 id="1-3-神经网络"><a href="#1-3-神经网络" class="headerlink" title="1.3 神经网络"></a>1.3 神经网络</h2><p>基础知识：这包括理解神经网络的结构，如层、权重、偏置和激活函数（sigmoid、tanh、ReLU等）。</p>
+<p>训练和优化：熟悉反向传播和不同类型的损失函数，如均方误差（MSE）和交叉熵。理解各种优化算法，如梯度下降、随机梯度下降、RMSprop和Adam。</p>
+<p>过拟合：理解过拟合的概念（模型在训练数据上表现良好但在未见数据上表现差）并学习各种正则化技术（dropout、L1&#x2F;L2正则化、早停、数据增强）以防止它。</p>
+<p>实现多层感知器（MLP）：使用PyTorch构建一个MLP，也称为全连接网络。</p>
+<p>📚 资源：</p>
+<p>3Blue1Brown - 但什么是神经网络？：直观地解释了神经网络及其内部工作原理。（B站配音版本）</p>
+<p>吴恩达深度学习</p>
+<p>lfreeCodeCamp - 深度学习速成课：深度学习中所有最重要的概念的视频</p>
+<p>Fast.ai - 实用深度学习：为想学习深度学习的有编程经验的人设计的免费课程</p>
+<p>推荐书籍《一起动手学习深度学习》</p>
+<p>李宏毅深度学习：更适合中国宝宝的深度学习视频</p>
+<h2 id="1-4-自然语言处理（NLP）"><a href="#1-4-自然语言处理（NLP）" class="headerlink" title="1.4 自然语言处理（NLP）"></a>1.4 自然语言处理（NLP）</h2><p>NLP在许多应用中扮演着关键角色，如翻译、情感分析、聊天机器人等。</p>
+<p>文本预处理：学习各种文本预处理步骤，如分词（将文本分割成单词或句子）、词干提取（将单词还原为其根形式）、词形还原（类似于词干提取但考虑上下文）、停用词去除等。</p>
+<p>特征提取技术：熟悉将文本数据转换为机器学习算法能理解的格式的技术。关键方法包括词袋模型（BoW）、词频-逆文档频率（TF-IDF）和n-gram。</p>
+<p>词嵌入：词嵌入是一种单词表示，允许具有相似含义的单词具有相似的表示。关键方法包括Word2Vec、GloVe和FastText。</p>
+<p>循环神经网络（RNNs）：理解RNNs的工作原理，这是一种为序列数据设计的神经网络类型。探索LSTMs和GRUs，两种RNN变体，它们能够学习长期依赖关系。</p>
+<p>📚 资源：</p>
+<p>RealPython - 使用spaCy进行Python自然语言处理：关于在Python中使用spaCy库进行NLP任务的详尽指南。</p>
+<p>Kaggle - NLP指南：一些notebook和资源，用于手把手解释Python中的NLP。</p>
+<p>Jay Alammar - Word2Vec的插图解释：理解著名的Word2Vec架构的好参考。</p>
+<p>Jake Tae - 从头开始的PyTorch RNN：在PyTorch中实现RNN、LSTM和GRU模型的实际和简单操作。</p>
+<p>colah的博客 - 理解LSTM网络：关于LSTM网络的理论性文章。</p>
+<h1 id="2-大语言模型前沿算法和框架"><a href="#2-大语言模型前沿算法和框架" class="headerlink" title="2. 大语言模型前沿算法和框架"></a>2. 大语言模型前沿算法和框架</h1><h2 id="2-1-大语言模型（LLM）架构"><a href="#2-1-大语言模型（LLM）架构" class="headerlink" title="2.1 大语言模型（LLM）架构"></a>2.1 大语言模型（LLM）架构</h2><p>需要清楚地了解模型的输入（token）和输出（logits），而原始的注意力机制（ attention mechanism）是另一个必须掌握的关键部分，因为它是很多改进算法的基础，具体来说需要包括以下技术。</p>
+<p>高层视角（High-level view:）：编码器encoder-解码器decoder的Transformer架构，特别是仅有解码器的GPT架构，几乎所有流行LLM都应用了该架构。</p>
+<p>令牌化（Tokenization）：如何将原始文本数据转换成模型能理解的格式，这包括将文本拆分成Token（通常是单词或子词）。</p>
+<p>注意力机制（Attention mechanisms）：掌握注意力机制的理论，包括自注意力和缩放点积注意力，这使得模型能够在产生输出时关注输入的不同部分。</p>
+<p>文本生成（Text generation）：模型生成输出序列的多种方式。常见方法包括了贪婪解码（greedy decoding）、束搜索（beam search）、top-k采样（top-k sampling,）和核心采样（nucleus sampling）。</p>
+<p>📚 资源：</p>
+<p>Jay Alammar《揭秘Transformer》：对Transformer模型进行了直观和形象的解释。</p>
+<p>Jay Alammar《揭秘GPT-2》：重点讨论了与Llama非常相似的GPT架构。</p>
+<p>Brendan Bycroft《LLM可视化》：对LLM内部发生情况的进行3D可视化。</p>
+<p>Andrej Karpathy《nanoGPT》：一个2小时长的YouTube视频，从头开始重新实现GPT（面向程序员）。（B站中文字幕版）</p>
+<p>Lilian Weng《注意力？注意力！》：以更正式的方式介绍注意力机制的需求。</p>
+<p>《LLM中的解码策略》：提供代码和对生成文本不同解码策略的视觉介绍。</p>
+<h2 id="2-2-构建指令数据集"><a href="#2-2-构建指令数据集" class="headerlink" title="2.2 构建指令数据集"></a>2.2 构建指令数据集</h2><p>虽然从维基百科和其他网站可以轻松地找到原始数据，但何如将数据转换为问题和答案的配对配对却很难。而数据集的质量将直接影响模型的质量，它们是大模型微调（finetune）过程中最重要的组成部分。</p>
+<p>Alpaca-样式数据集：使用OpenAI API（GPT）从头开始生成合成数据。你可以指定种子和系统提示以创建多样化的数据集。</p>
+<p>高级技术：学习如何通过Evol-Instruct改进现有数据集，如何像在Orca和phi-1论文中那样生成高质量的合成数据。</p>
+<p>数据过滤：使用正则表达式、移除近似重复项、关注令牌数较多的答案等传统技术。</p>
+<p>提示模板：在没有真正标准的问题和答案的情况下，了解不同的聊天模板很重要，比如ChatML、Alpaca等。</p>
+<p>📚 参考资料:</p>
+<p>由Thomas Capelle撰写的《为指令调优准备数据集》：探索Alpaca和Alpaca-GPT4数据集及其格式化方法。</p>
+<p>由Solano Todeschini撰写的《生成葡萄牙语临床指令数据集》：教程，介绍如何使用GPT-4创建合成指令数据集。</p>
+<p>由Kshitiz Sahay撰写的《使用GPT 3.5为新闻分类创建指令数据集》：使用GPT 3.5创建指令数据集以微调Llama 2进行新闻分类。</p>
+<p>《为LLM微调创建数据集》：包含一些过滤数据集和上传结果的技术的笔记本。</p>
+<p>由Matthew Carrigan撰写的《聊天模板》：Hugging Face关于提示模板的页面。</p>
+<h2 id="2-3-模型预训练"><a href="#2-3-模型预训练" class="headerlink" title="2.3 模型预训练"></a>2.3 模型预训练</h2><p>是指从大量的无监督数据集中进行模型预训练，模型预训练是一个非常漫长和消费资源的过程，因此它不是本学习路线教程的重点。但是我们可以了解它，以方便后续的学习。它主要包括以下几个部分：</p>
+<p>数据管道：预训练需要巨大的数据集（例如，Llama 2是在2万亿令牌上训练的），这些数据集需要被过滤、令牌化，并与预定义的词汇表进行整合。</p>
+<p>因果语言模型：了解因果和掩码语言模型的区别，以及在这种情况下使用的损失函数。为了有效的预训练，了解更多关于Megatron-LM或gpt-neox。</p>
+<p>规模化定律：规模化定律描述了基于模型大小、数据集大小和用于训练的计算量的预期模型性能。</p>
+<p>高性能计算：这里不讨论，但如果你计划从头开始创建自己的LLM（硬件、分布式工作负载等），则需要更多关于HPC的知识是基础。</p>
+<p>📚 参考资料:</p>
+<p>Junhao Zhao《LLMDataHub》：为预训练、微调和RLHF策划的数据集列表。</p>
+<p>Hugging Face《从头开始训练因果语言模型》：使用transformers库从头开始预训练GPT-2模型。</p>
+<p>Zhang等人创建的《TinyLlama》：检查此项目以了解如何从头开始训练Llama模型。</p>
+<p>Hugging Face提供的《因果语言模型》：解释因果和掩码语言模型的区别，以及如何快速微调DistilGPT-2模型。</p>
+<p>nostalgebraist撰写的《Chinchilla的狂野含义》：讨论规模化定律并解释它们对LLM通常意味着什么。</p>
+<p>BigScience提供的《BLOOM》：Notion页面，描述了如何构建BLOOM模型，包括大量有关工程部分和遇到的问题的有用信息。</p>
+<p>Meta提供的《OPT-175日志》：研究日志显示了什么出了问题，什么做得对。如果你计划预训练一个非常大的语言模型（在这种情况下，是175B参数），这将非常有用。</p>
+<p>《LLM 360》：一个开源LLM框架，提供训练和数据准备代码、数据、指标和模型。</p>
+<h2 id="2-4-监督式微调（Supervised-Fine-Tuning）"><a href="#2-4-监督式微调（Supervised-Fine-Tuning）" class="headerlink" title="2.4 监督式微调（Supervised Fine-Tuning）"></a>2.4 监督式微调（Supervised Fine-Tuning）</h2><p>监督式微调就是让我们在已经标注的数据集上对已经预训练好的模型进行再次训练，以符合任务需求，它是一个非常重要的过程。</p>
+<p>完全微调（Full fine-tuning）：完全微调指的是训练模型中的所有参数。这不是一种高效的技术，但它产生稍好的结果。</p>
+<p>LoRA：一种基于低秩适配器的参数高效技术（PEFT）。我们只训练这些适配器，而不是所有参数。</p>
+<p>QLoRA：另一种基于LoRA的PEFT，它还将模型的权重量化为4位，并引入分页优化器来管理内存峰值。将其与Unsloth结合使用，可以在免费的Colab笔记本上有效运行。</p>
+<p>Axolotl：一个用户友好且强大的微调工具，被用于许多最先进的开源模型。</p>
+<p>DeepSpeed：高效的预训练和微调LLM，适用于多GPU和多节点设置（在Axolotl中实现）。</p>
+<p>📚 参考资料:</p>
+<p>由Alpin撰写的《LLM训练新手指南》：概述微调LLM时要考虑的主要概念和参数。</p>
+<p>由Sebastian Raschka提供的《LoRA洞察》：关于LoRA的实际洞察和如何选择最佳参数。</p>
+<p>《自己微调Llama 2模型》：关于如何使用Hugging Face库微调Llama 2模型的动手教程。</p>
+<p>由Benjamin Marie撰写的《为因果LLM填充训练示例》：因果LLM填充训练示例的最佳实践。</p>
+<p>《LLM微调初学者指南》：关于如何使用Axolotl微调CodeLlama模型的教程。</p>
+<h2 id="2-5-通过人类反馈进行强化学习（Reinforcement-Learning-from-Human-Feedback）"><a href="#2-5-通过人类反馈进行强化学习（Reinforcement-Learning-from-Human-Feedback）" class="headerlink" title="2.5 通过人类反馈进行强化学习（Reinforcement Learning from Human Feedback）"></a>2.5 通过人类反馈进行强化学习（Reinforcement Learning from Human Feedback）</h2><p>在监督式微调之后，RLHF是一个用来将LLM产生的答案达到和人类回答差不多的重要步骤。其思想是从人工反馈中学习偏好。它比SFT更复杂，但是该步骤通常被视为可选的。</p>
+<p>偏好数据集（Preference datasets）：这些数据集通常包含几个答案，并有某种排名，但是这种数据集更难产生。</p>
+<p>近端策略优化（Proximal Policy Optimization）：这个算法利用一个奖励模型来预测给定文本是否被人类高度评价。然后使用这个预测来优化SFT模型，一般使用基于KL散度加上惩罚的方式来执行。</p>
+<p>直接偏好优化（Direct Preference Optimization）：DPO简化将其重新构架为一个分类问题。它使用参考模型而不是奖励模型（无需训练），只需要一个超参数，使其更稳定和高效。</p>
+<p>📚 参考资料:</p>
+<p>由Ayush Thakur撰写的《使用RLHF训练LLM简介》：解释为什么使用RLHF减少偏见并提高LLM性能是可取的。</p>
+<p>由Hugging Face提供的《RLHF插图》：介绍了奖励模型训练和通过强化学习进行微调的RLHF。</p>
+<p>由Hugging Face提供的《StackLLaMA》：使用transformers库高效对齐LLaMA模型与RLHF的教程。</p>
+<p>由Sebastian Rashcka撰写的《LLM训练：RLHF及其替代方案》：概述RLHF过程和替代方案，如RLAIF。</p>
+<p>《使用DPO微调Mistral-7b》：使用DPO微调Mistral-7b模型的教程，并复现NeuralHermes-2.5。</p>
+<h2 id="2-6-评估（Evaluation）"><a href="#2-6-评估（Evaluation）" class="headerlink" title="2.6 评估（Evaluation）"></a>2.6 评估（Evaluation）</h2><p>评估LLM是一个被低估的部分，它既耗时但是又相对可靠。你的下游任务应该决定你想评估什么，但始终记住Goodhart法则：“当一个指标成为目标时，它就不再是一个好的指标。”</p>
+<p>传统指标：困惑度和BLEU分数这样的指标不再像以前那样受欢迎，因为在大多数情况下它们是有缺陷的。了解它们以及何时可以应用它们很重要。</p>
+<p>通用基准：基于语言模型评估工具，Open LLM排行榜是通用LLM（如ChatGPT）的主要基准。还有其他流行的基准，如BigBench、MT-Bench等。</p>
+<p>特定任务基准：如摘要、翻译和问答等任务有专门的基准、指标甚至子领域（医疗、金融等），如PubMedQA用于生物医学问答。</p>
+<p>人类评估：最可靠的评估是用户的接受率或人类做出的比较。如果你想知道模型是否表现良好，最简单但最可靠的方式是自己使用它。</p>
+<p>📚 参考资料:</p>
+<p>由Hugging Face提供的《固定长度模型的困惑度》：困惑度概述，包括用transformers库实现它的代码。</p>
+<p>由Rachael Tatman撰写的《自担风险使用BLEU》：BLEU分数及其许多问题的概述，附有示例。</p>
+<p>由Chang等人撰写的《评估LLM的调查》：关于评估什么、在哪里评估以及如何评估的综合论文。</p>
+<p>由lmsys提供的《聊天机器人竞技场排行榜》：基于人类比较的通用LLM的Elo评分。</p>
+<h2 id="2-7-量化"><a href="#2-7-量化" class="headerlink" title="2.7 量化"></a>2.7 量化</h2><p>量化是将模型的权重（和激活）使用更低精度进行转换的过程。例如，使用16位存储的权重可以转换为4位表示。这项技术已经越来越重要，因为它可以减少与LLM相关的计算和内存成本，以使其在计算资源更低的设备上运行。</p>
+<p>基础技术：了解不同的精度水平（FP32, FP16, INT8等）以及如何使用absmax和零点技术进行朴素量化。</p>
+<p>GGUF和llama.cpp：最初设计用于在CPU上运行，llama.cpp和GGUF格式已成为在消费级硬件上运行LLM的最受欢迎的工具。</p>
+<p>GPTQ和EXL2：GPTQ特别是EXL2格式提供了惊人的速度，但只能在GPU上运行。模型也需要很长时间才能被量化。</p>
+<p>AWQ：这种新格式比GPTQ更准确（困惑度更低），但使用的VRAM更多，不一定更快。</p>
+<p>📚 参考资料:</p>
+<p>《量化简介》：量化概述，absmax和零点量化以及LLM.int8()的代码。</p>
+<p>《使用llama.cpp量化Llama模型》：关于如何使用llama.cpp和GGUF格式量化Llama 2模型的教程。</p>
+<p>《使用GPTQ进行LLM的4位量化》：使用GPTQ算法量化LLM的教程，附有AutoGPTQ。</p>
+<p>《ExLlamaV2：运行LLM的最快库》：关于如何使用EXL2格式量化Mistral模型并使用ExLlamaV2库运行它的指南。</p>
+<p>《理解激活感知权重量化》由FriendliAI提供：AWQ技术及其优势的概述。</p>
+<h2 id="2-8-新趋势"><a href="#2-8-新趋势" class="headerlink" title="2.8 新趋势"></a>2.8 新趋势</h2><p>位置嵌入（Positional embeddings）：了解LLM如何编码位置，尤其是RoPE这样的相对位置编码方案。实现YaRN（通过温度因子乘以注意力矩阵）或ALiBi（基于token距离的注意力惩罚）以延长上下文长度。</p>
+<p>模型合并（Model merging）：合并训练好的模型已成为创建性能模型而无需任何微调的流行方式。流行的mergekit库实现了最受欢迎的合并方法，如SLERP、DARE和TIES。</p>
+<p>专家混合：Mixtral因其出色的性能而重新流行化MoE架构。与此同时，OSS社区出现了一种通过合并模型（如Phixtral）的frankenMoE，这是一个更便宜且性能良好的选项。</p>
+<p>多模态模型：这些模型（如CLIP、Stable Diffusion或LLaVA）处理多种类型的输入（文本、图像、音频等），具有统一的嵌入空间，解锁了强大的应用，如文本到图像。</p>
+<p>📚 参考资料:</p>
+<p>《扩展RoPE》由EleutherAI提供：总结不同位置编码技术的文章。</p>
+<p>《理解YaRN》由Rajat Chawla提供：YaRN介绍。</p>
+<p>《使用mergekit合并LLM》：关于使用mergekit合并模型的教程。</p>
+<p>《专家混合解释》由Hugging Face提供：关于MoEs及其工作原理的详尽指南。</p>
+<p>《大型多模态模型》由Chip Huyen提供：多模态系统及其近期历史的概述。</p>
+<h1 id="3-LLM工程化"><a href="#3-LLM工程化" class="headerlink" title="3. LLM工程化"></a>3. LLM工程化</h1><p>在这阶段集中于如何构建和部署基于大语言模型（LLM）的应用程序，以便在生产环境中使用。它分为几个部分，每部分都聚集于LLM应用开发的不同方面：</p>
+<h2 id="3-1-运行大型语言模型-LLMs"><a href="#3-1-运行大型语言模型-LLMs" class="headerlink" title="3.1 运行大型语言模型 (LLMs)"></a>3.1 运行大型语言模型 (LLMs)</h2><p>运行LLMs可能会因为硬件要求而变得困难。而我们可以通过Api的方式（如GPT-4）来简单的使用大模型。当然也可以进行本地运行。无论哪种方式，都需要额外的提示和引导技巧（也叫做提示工程， prompting engineer）来提升模型的输出质量。</p>
+<p>LLM APIs: API是部署LLMs的一种比较简单的方式，它不要求设备拥有显卡资源，但是这种一般需要付费得到API。这个领域分为私有LLMs(OpenAI, Google, Anthropic, Cohere, 等.) 和开源LLMs (OpenRouter, Hugging Face, Together AI, 等.).</p>
+<p>开源LLMs:Hugging Face Hub开源了大量的LLMs。你可以直接在Hugging Face Spaces中运行其中一些，或者下载并在像LM Studio这样的应用程序中或通过CLI与llama.cpp或Ollama在本地运行它们。</p>
+<p>提示工程（Prompt engineering）：常见技术包括零次提示、少数提示、思维链和ReAct。它们在更大的模型上效果更好，也可以适应更小的模型。</p>
+<p>结构化输出（Structuring outputs）：大部分任务需要结构化输出，如严格的模板或JSON格式。可以使用LMQL、Outlines、Guidance等库来指导生成并遵循给定的结构。</p>
+<p>📚 参考资料:</p>
+<p>由Nisha Arya撰写的使用LM Studio在本地运行LLM：如何使用LM Studio的简短指南。</p>
+<p>由DAIR.AI撰写的提示工程指南：提示工程学习</p>
+<p>Outlines - 快速开始：由Outlines启动的指导生成技术。</p>
+<p>LMQL - 概述：LMQL语言的介绍。</p>
+<h2 id="3-2-构建向量存储（Building-a-Vector-Storage）"><a href="#3-2-构建向量存储（Building-a-Vector-Storage）" class="headerlink" title="3.2 构建向量存储（Building a Vector Storage）"></a>3.2 构建向量存储（Building a Vector Storage）</h2><p>有时候我们想要在特定知识库下让LLMs搜索答案，而检索增强生成（RAG）结合了信息检索（IR）方法的能力，提高文本生成任务的质量和相关性。这种方法在处理需要广泛背景知识或特定信息的任务时特别有用，例如问答、文章撰写、摘要生成等。构建向量存储是构建检索增强生成（RAG）管道的第一步。它涉及文档加载，拆分，生成向量表示（嵌入），并存储等步骤：</p>
+<p>文档加载：文档加载器可以处理多种格式：PDF、JSON、HTML、Markdown等。它们还可以直接从一些数据库和API（GitHub、Reddit、Google Drive等）检索数据。</p>
+<p>文档拆分：文本拆分器将文档拆分成更小、有语义信息的块。与其在n个字符后拆分文本，不如更好地按标题或递归拆分，附加一些额外的元数据。</p>
+<p>嵌入模型：嵌入模型将文本转换为向量表示。这对于执行语义搜索至关重要，可以深入并更细致地理解语言。</p>
+<p>向量数据库：向量数据库（如Chroma、Pinecone、Milvus、FAISS、Annoy等）旨在存储嵌入向量。它们能够根据向量相似度高效检索与查询“最相似”的数据。</p>
+<p>📚 参考资料:</p>
+<p>LangChain - 文本拆分器：LangChain实现的不同文本拆分器列表。</p>
+<p>Sentence Transformers库：流行的嵌入模型库。</p>
+<p>MTEB排行榜：嵌入模型的排行榜。</p>
+<p>由Moez Ali撰写的前5大向量数据库：最好和最流行的向量数据库的比较。</p>
+<h2 id="3-3-检索增强生成-Retrieval-Augmented-Generation-RAG"><a href="#3-3-检索增强生成-Retrieval-Augmented-Generation-RAG" class="headerlink" title="3.3 检索增强生成 (Retrieval Augmented Generation, RAG)"></a>3.3 检索增强生成 (Retrieval Augmented Generation, RAG)</h2><p>RAG技术可以使LLMs从数据库检索上下文文档以提高其答案的准确性。RAG是一种流行的增强模型知识的方式，无需任何微调。</p>
+<p>协调器（Orchestrators）：协调器（如LangChain、LlamaIndex、FastRAG等）是将LLMs与工具、数据库、记忆等连接并增强其能力的流行框架。</p>
+<p>检索器（Retrievers）：用户指令并不是为检索优化的。可以应用不同技术（例如，多查询检索器、HyDE等）来重述&#x2F;扩展它们并提高性能。</p>
+<p>记忆（Memory）：为了记住以前的指令和答案，LLMs和聊天机器人（如ChatGPT）将这个历史添加到它们的上下文窗口中。这个缓冲区可以通过摘要（例如，使用一个较小的LLM）、向量存储+RAG等来改进。</p>
+<p>评估：我们需要评估文档检索（上下文的精度和召回率）和生成阶段（保真度和答案相关性）。可以使用工具Ragas和DeepEval来简化这一过程。</p>
+<p>📚 参考资料:</p>
+<p>Llamaindex - 高级概念：构建RAG管道时需要了解的主要概念。</p>
+<p>Pinecone - 检索增强：检索增强过程的概述。</p>
+<p>LangChain - 使用RAG的Q&amp;A：构建典型RAG管道的分步教程。</p>
+<p>LangChain - 记忆类型：不同类型记忆的列表及其相关用途。</p>
+<p>RAG管道 - 指标：用于评估RAG管道的主要指标概述。</p>
+<h2 id="3-4-高级RAG"><a href="#3-4-高级RAG" class="headerlink" title="3.4 高级RAG"></a>3.4 高级RAG</h2><p>现实生活中的应用可能需要复杂的管道，包括SQL或图数据库，以及自动选择相关工具和API。这些高级技术可以改进基线解决方案并提供额外功能。</p>
+<p>查询构造（Query construction）：存储在传统数据库中的结构化数据需要特定的查询语言，如SQL、Cypher、元数据等。我们可以直接将用户指令翻译成查询以访问数据。</p>
+<p>代理和工具（Agents and tools）：代理通过自动选择最相关的工具来增强LLMs，以提供答案。这些工具可以简单到使用Google或Wikipedia，或更复杂，如Python解释器或Jira。</p>
+<p>后处理（Post-processing:）：向LLM提供输入的最终步骤。它通过重新排列、RAG-fusion和分类等方式增强检索到的文档的相关性和多样性。</p>
+<p>📚 参考资料:</p>
+<p>LangChain - 查询构造：关于不同类型查询构造的博客文章。</p>
+<p>LangChain - SQL：如何使用LLMs与SQL数据库交互的教程，涉及Text-to-SQL和一个可选的SQL代理。</p>
+<p>Pinecone - LLM代理：介绍不同类型代理和工具。</p>
+<p>由Lilian Weng撰写的LLM驱动的自主代理：更多关于LLM代理的理论文章。</p>
+<p>LangChain - OpenAI的RAG：OpenAI采用的RAG策略概述，包括后处理。</p>
+<h2 id="3-5-推理优化-（-Inference-optimization）"><a href="#3-5-推理优化-（-Inference-optimization）" class="headerlink" title="3.5 推理优化 （ Inference optimization）"></a>3.5 推理优化 （ Inference optimization）</h2><p>文本生成是一个成本高昂的过程，需要昂贵的硬件资源。除了量化，还提出了各种技术来最大化吞吐量并降低推理成本。</p>
+<p>Flash Attention：优化注意力机制，将其复杂度从二次方降低到线性，加速训练和推理。</p>
+<p>键值缓存：了解键值缓存以及多查询注意力（MQA）和分组查询注意力（GQA）中引入的改进。</p>
+<p>推测解码：使用小型模型生成草稿，然后由更大的模型审查，以加速文本生成。</p>
+<p>📚 参考资料:</p>
+<p>GPU推理由Hugging Face提供：解释如何在GPUs上优化推理。</p>
+<p>LLM推理由Databricks提供：如何在生产中优化LLM推理的最佳实践。</p>
+<p>为速度和内存优化LLMs由Hugging Face提供：解释优化速度和内存的三种主要技术，即量化、Flash Attention和架构创新。</p>
+<p>辅助生成由Hugging Face提供：HF版本的推测解码，是一篇详细介绍其如何工作的博客，包括实现它的代码。</p>
+<h2 id="3-6-部署LLMs"><a href="#3-6-部署LLMs" class="headerlink" title="3.6 部署LLMs"></a>3.6 部署LLMs</h2><p>部署LLMs是一项工程壮举，可能需要多个GPU集群。</p>
+<p>本地部署：与私有LLMs相比，开源LLMs可以保护用户隐私，是它的一大优势。本地LLM服务器（LM Studio、Ollama、oobabooga、kobold.cpp等）利用这一优势为本地应用提供动力。</p>
+<p>demo部署：Gradio和Streamlit等框架有助于原型化应用程序并分享demo。你也可以轻松地在线托管它们，例如使用Hugging Face Spaces。</p>
+<p>服务器部署：在规模上部署LLMs需要云（参见SkyPilot）或本地基础设施，并常常利用优化的文本生成框架，如TGI、vLLM等。</p>
+<p>边缘部署：在受限环境中，高性能框架如MLC LLM和mnn-llm可以在网页浏览器、Android和iOS中部署LLM。</p>
+<p>📚 参考资料:</p>
+<p>Streamlit - 构建基础LLM应用：使用Streamlit制作基础ChatGPT-like应用的教程。</p>
+<p>HF LLM推理容器：使用Hugging Face的推理容器在Amazon SageMaker上部署LLMs。</p>
+<p>Philschmid博客由Philipp Schmid撰写：关于使用Amazon SageMaker部署LLM的高质量文章集。</p>
+<p>优化延迟由Hamel Husain提供：关于TGI、vLLM、CTranslate2和mlc在吞吐量和延迟方面的比较。</p>
+<h2 id="3-7-保护LLMs"><a href="#3-7-保护LLMs" class="headerlink" title="3.7 保护LLMs"></a>3.7 保护LLMs</h2><p>除了与软件相关的传统安全问题外，由于LLMs的训练和提示方式，它们还有独特的弱点。</p>
+<p>提示黑客攻击：与提示工程相关的不同技术，包括提示注入（额外指令以劫持模型的答案）、数据&#x2F;提示泄露（检索其原始数据&#x2F;提示）和越狱（制作提示以绕过安全功能）。</p>
+<p>后门：攻击向量可以针对训练数据本身，通过在训练数据中下毒（例如，使用错误信息）或创建后门（秘密触发器以在推理期间改变模型的行为）。<br>防御措施：保护你的LLM应用程序的最佳方式是针对这些漏洞测试它们（例如，使用红队测试和像garak这样的检查）并在生产中观察它们（使用框架，如langfuse）。</p>
+<p>📚 参考资料:</p>
+<p>OWASP LLM前10名由HEGO Wiki提供：LLM应用程序中看到的10个最关键漏洞的列表。</p>
+<p>提示注入入门由Joseph Thacker提供：专门针对工程师的提示注入的简短指南。</p>
+<p>LLM安全由@llm_sec提供：与LLM安全相关的广泛资源列表。</p>
+<p>LLMs的红队测试由Microsoft提供：如何使用LLMs进行红队测试的指南。</p>
+<hr>
+<p>原文链接：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_36751401/article/details/136349545">https://blog.csdn.net/weixin_36751401/article/details/136349545</a></p>
+
+  </article>
+  <!-- tag -->
+  <div class="mt-12 pt-6 border-t border-gray-200">
+    
+  </div>
+  <!-- prev and next -->
+  <div class="flex justify-between mt-12 pt-6 border-t border-gray-200">
+    <div>
+      
+        <a href="/2023/12/29/hello-world/" class="text-sm text-gray-400 hover:text-gray-500 flex justify-center">
+          <iconify-icon width="20" icon="ri:arrow-left-s-line" data-inline="false"></iconify-icon>
+          Hello World
+        </a>
+      
+    </div>
+    <div>
+      
+    </div>
+  </div>
+  <!-- comment -->
+  <div class="article-comments mt-12">
+    
+
+  </div>
+</section>
+<!-- js inspect -->
+
+<script src="/lib/clipboard.min.js"></script>
+
+
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+  });
+</script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  $(document).ready(() => {
+    const maraidConfig = {
+      theme: "default",
+      logLevel: 3,
+      flowchart: { curve: "linear" },
+      gantt: { axisFormat: "%m/%d/%Y" },
+      sequence: { actorMargin: 50 },
+    };
+    mermaid.initialize(maraidConfig);
+  });
+</script>
+
+
+
+<script src="/lib/fancybox/fancybox.umd.min.js"></script>
+
+<script>
+  $(document).ready(() => {
+    $('.post-content').each(function(i){
+      $(this).find('img').each(function(){
+        if ($(this).parent().hasClass('fancybox') || $(this).parent().is('a')) return;
+        var alt = this.alt;
+        if (alt) $(this).after('<span class="fancybox-alt">' + alt + '</span>');
+        $(this).wrap('<a class="fancybox-img" href="' + this.src + '" data-fancybox=\"gallery\" data-caption="' + alt + '"></a>')
+      });
+      $(this).find('.fancybox').each(function(){
+        $(this).attr('rel', 'article' + i);
+      });
+    });
+
+    Fancybox.bind('[data-fancybox="gallery"]', {
+        // options
+    })
+  })
+</script>
+
+<!-- tocbot begin -->
+
+<script src="/lib/tocbot/tocbot.min.js"></script>
+
+<script>
+  $(document).ready(() => {
+      tocbot.init({
+        // Where to render the table of contents.
+        tocSelector: '.post-toc',
+        // Where to grab the headings to build the table of contents.
+        contentSelector: '.post-content',
+        // Which headings to grab inside of the contentSelector element.
+        headingSelector: 'h1, h2, h3',
+        // For headings inside relative or absolute positioned containers within content.
+        hasInnerContainers: true,
+    });
+  })
+</script>
+<!-- tocbot end -->
+
+
+  </main>
+  <footer class="flex flex-col h-40 items-center justify-center text-gray-400 text-sm">
+  <!-- busuanzi -->
+  
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<!-- Busuanzi Analytics -->
+<div class="flex items-center gap-2">
+  <span>Visitors</span>
+  <span id="busuanzi_value_site_uv"></span>
+  <span>Page Views</span>
+  <span id="busuanzi_value_site_pv"></span>
+</div>
+<!-- End Busuanzi Analytics -->
+
+
+  <!-- copyright -->
+  <div class="flex items-center gap-2">
+    <a target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" style="color: inherit;">CC BY-NC-SA 4.0</a>
+    <span>© 2022</span>
+    <iconify-icon width="18" icon="emojione-monotone:maple-leaf" ></iconify-icon>
+    <a href="https://github.com/xbmlz" target="_blank" rel="noopener noreferrer">xbmlz</a>
+  </div>
+  <!-- powered by -->
+  <div class="flex items-center gap-2">
+    <span>Powered by</span>
+    <a href="https://hexo.io/" target="_blank" rel="noopener noreferrer">Hexo</a>
+    <span>&</span>
+    <a href="https://github.com/xbmlz/hexo-theme-maple" target="_blank" rel="noopener noreferrer">Maple</a>
+  </div>
+
+</footer>
+
+  <div class="back-to-top box-border fixed right-6 z-1024 -bottom-20 rounded py-1 px-1 bg-slate-900 opacity-60 text-white cursor-pointer text-center dark:bg-slate-600">
+    <span class="flex justify-center items-center text-sm">
+      <iconify-icon width="18" icon="ion:arrow-up-c" id="go-top"></iconify-icon>
+      <span id="scrollpercent"><span>0</span> %</span>
+    </span>
+  </div>
+  
+<script src="/js/main.js"></script>
+
+
+  <script>
+    $(document).ready(function () {
+      const mapleCount = "10";
+      const speed = "0.5";
+      const mapleEl = document.getElementById("maple");
+      const maples = Array.from({ length: mapleCount }).map(() => {
+        const maple = document.createElement("div");
+        const scale = Math.random() * 0.5 + 0.5;
+        const offset = Math.random() * 2 - 1;
+        const x = Math.random() * mapleEl.clientWidth;
+        const y = -Math.random() * mapleEl.clientHeight;
+        const duration = 10 / speed;
+        const delay = -duration;
+        maple.className = "maple";
+        maple.style.width = `${24 * scale}px`;
+        maple.style.height = `${24 * scale}px`;
+        maple.style.left = `${x}px`;
+        maple.style.top = `${y}px`;
+        maple.style.setProperty("--maple-fall-offset", offset);
+        maple.style.setProperty("--maple-fall-height", `${Math.abs(y) + mapleEl.clientHeight}px`);
+        maple.style.animation = `fall ${duration}s linear infinite`;
+        maple.style.animationDelay = `${delay}s`;
+        mapleEl.appendChild(maple)
+        return maple
+      })
+    });
+  </script>
+  
+
+
+  <div class="fixed top-0 bottom-0 left-0 right-0 pointer-events-none print:hidden" id="maple"></div>
+</body>
+
+</html>
