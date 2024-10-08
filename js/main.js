@@ -1,146 +1,82 @@
-// mobile menu
-function registerMobileMenu() {
-  $("#open-menu").click(function () {
-    // set height auto
-    $("#menu-panel").css("height", "auto");
-    // set translate y 0
-    $("#menu-content").css(
-      "transform",
-      "translate(0, 0) rotate(0) skew(0) scaleX(1) scaleY(1)"
-    );
-    $("#open-menu").css("display", "none");
-    $("#close-menu").css("display", "block");
-  });
+/* global KEEP */
 
-  $("#close-menu").click(function () {
-    // set height 0
-    $("#menu-panel").css("height", "0");
-    // set translate y -100%
-    $("#menu-content").css(
-      "transform",
-      "translate(0, -100%) rotate(0) skew(0) scaleX(1) scaleY(1)"
-    );
-    $("#open-menu").css("display", "block");
-    $("#close-menu").css("display", "none");
-  });
-}
+window.addEventListener('DOMContentLoaded', () => {
+  const { version, local_search, lazyload } = KEEP.theme_config
 
-// header page title
-function registerHeaderPageTitle() {
-  // 监听文章标题消失时，在header中显示文章标题
-  new IntersectionObserver((entries) => {
-    if (entries[0].intersectionRatio <= 0) {
-      $("#header-title")
-        .css("opacity", "1")
-        .css("transform", "translate(0, 0)")
-        .css("transition", "all 0.3s");
-    } else {
-      $("#header-title")
-        .css("opacity", "0")
-        .css("transform", "translate(0, -100%)")
-        .css("transition", "all 0.3s");
-    }
-  }).observe($("#article-title")[0], {
-    threshold: 0,
-  });
-}
-
-// go top
-function registerGoTop() {
-  const THRESHOLD = 50;
-  const $top = $('.back-to-top');
-  $(window).scroll(function () {
-    $top.toggleClass('back-to-top-on', window.pageYOffset > THRESHOLD);
-    const scrollTop = $(window).scrollTop();
-    const docHeight = $('#content').height();
-    const winHeight = $(window).height();
-    const contentVisibilityHeight = (docHeight > winHeight) ? (docHeight - winHeight) : ($(document).height() - winHeight);
-    const scrollPercent = (scrollTop) / (contentVisibilityHeight);
-    const scrollPercentRounded = Math.round(scrollPercent*100);
-    const scrollPercentMaxed = (scrollPercentRounded > 100) ? 100 : scrollPercentRounded;
-    $('#scrollpercent>span').html(scrollPercentMaxed);
-  });
-
-  $top.on('click', function () {
-    $('body').velocity('scroll');
-  });
-}
-
-// copy code
-function registerCopyCode() {
-  $("figure.highlight").each(function () {
-    const copyIcon = $(
-      "<iconify-icon id='copy-icon' width='18' icon='carbon:copy'></iconify-icon>"
-    );
-    const leftOffset = 25;
-    // left
-    const left = $(this).width() - leftOffset;
-    // set style
-    $(copyIcon).css("position", "absolute");
-    $(copyIcon).css("left", `${left}px`);
-    $(copyIcon).css("top", "15px");
-    $(copyIcon).css("cursor", "pointer");
-    // add icon
-    $(this).append(copyIcon);
-    // copy code
-    $(copyIcon).click(function () {
-      // .code .line
-      const code = [...$(this).parent().find(".code .line")]
-        .map((line) => line.innerText)
-        .join("\n");
-      // begin copy
-      const textarea = document.createElement("textarea");
-      textarea.value = code;
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textarea);
-      var ta = document.createElement("textarea");
-      ta.style.top = window.scrollY + "px"; // Prevent page scrolling
-      ta.style.position = "absolute";
-      ta.style.opacity = "0";
-      ta.readOnly = true;
-      ta.value = code;
-      document.body.append(ta);
-      const selection = document.getSelection();
-      const selected =
-        selection.rangeCount > 0 ? selection.getRangeAt(0) : false;
-      ta.select();
-      ta.setSelectionRange(0, code.length);
-      ta.readOnly = false;
-      var result = document.execCommand("copy");
-      // change icon
-      $(this).attr("icon", result ? "carbon:checkmark" : "carbon:error");
-      ta.blur(); // For iOS
-      // blur
-      $(copyIcon).blur();
-      if (selected) {
-        selection.removeAllRanges();
-        selection.addRange(selected);
-      }
-      document.body.removeChild(ta);
-      // setTimeout change icon
-      setTimeout(() => {
-        $(this).attr("icon", "carbon:copy");
-      }, 1000); // 1s
-    });
-
-    // listen overflow-x change icon left
-    $(this).scroll(function () {
-      const scrollLeft = $(this).scrollLeft();
-      const iconLeft = $(this).width() - leftOffset + scrollLeft;
-      if (iconLeft > 0) {
-        $(copyIcon).css("left", `${iconLeft}px`);
-      }
-    });
-  });
-}
-
-$(document).ready(function () {
-  registerMobileMenu();
-  registerGoTop();
-  if ($("#article-title").length > 0) {
-    registerHeaderPageTitle();
-    registerCopyCode();
+  KEEP.themeInfo = {
+    theme: `Keep v${version}`,
+    author: 'XPoet',
+    repository: 'https://github.com/XPoet/hexo-theme-keep',
+    localStorageKey: 'KEEP-THEME-STATUS',
+    encryptKey: 'KEEP-ENCRYPT',
+    styleStatus: {
+      isDark: false,
+      fontSizeLevel: 0,
+      isShowToc: true
+    },
+    defaultDatetimeFormat: 'YYYY-MM-DD HH:mm:ss'
   }
-});
+
+  // print theme base info
+  KEEP.printThemeInfo = () => {
+    console.log(
+      `\n %c ${KEEP.themeInfo.theme} %c ${KEEP.themeInfo.repository} \n`,
+      `color: #fadfa3; background: #333; padding: 6px 0;`,
+      `padding: 6px 0;`
+    )
+  }
+  KEEP.printThemeInfo()
+
+  // set version number of footer
+  KEEP.setFooterVersion = () => {
+    const vd = document.querySelector('.footer .keep-version')
+    vd && (vd.innerHTML = KEEP.themeInfo.theme)
+  }
+
+  // set styleStatus to localStorage
+  KEEP.setStyleStatus = () => {
+    localStorage.setItem(KEEP.themeInfo.localStorageKey, JSON.stringify(KEEP.themeInfo.styleStatus))
+  }
+
+  // get styleStatus from localStorage
+  KEEP.getStyleStatus = () => {
+    let temp = localStorage.getItem(KEEP.themeInfo.localStorageKey)
+    if (temp) {
+      temp = JSON.parse(temp)
+      for (let key in KEEP.themeInfo.styleStatus) {
+        KEEP.themeInfo.styleStatus[key] = temp[key]
+      }
+      return temp
+    } else {
+      return null
+    }
+  }
+
+  // init prototype function
+  KEEP.initPrototype = () => {
+    HTMLElement.prototype.wrap = function (wrapper) {
+      this.parentNode.insertBefore(wrapper, this)
+      this.parentNode.removeChild(this)
+      wrapper.appendChild(this)
+    }
+  }
+  KEEP.initPrototype()
+
+  KEEP.initExecute = () => {
+    KEEP.initUtils()
+    KEEP.initHeaderShrink()
+    KEEP.initModeToggle()
+    KEEP.initBack2Top()
+    KEEP.initCodeBlock()
+    KEEP.setFooterVersion()
+
+    if (lazyload?.enable === true) {
+      KEEP.initLazyLoad()
+    }
+
+    if (local_search?.enable === true) {
+      KEEP.initLocalSearch()
+    }
+  }
+  KEEP.initExecute()
+})
